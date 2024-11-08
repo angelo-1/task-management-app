@@ -1,0 +1,10 @@
+<div class="notifications">
+    <h2>Notifications</h2>
+    <div class="notification-list">
+      <div *ngFor="let notification of notifications" class="notification-card" [class.read]="notification.read">
+        <h3>{{ notification.message }}</h3>
+        <p>{{ notification.createdAt | date }}</p>
+        <button (click)="markAsRead(notification.id)">Mark as Read</button>
+      </div>
+    </div>
+  </div>

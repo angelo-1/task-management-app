@@ -1,0 +1,120 @@
+<!-- task-list.component.html -->
+<div class="task-management">
+    <div class="task-header">
+      <h2>Task Management</h2>
+      <button class="create-btn" (click)="openCreateForm()">Create New Task</button>
+    </div>
+  
+    <!-- Task Creation/Edit Form -->
+    <div *ngIf="showCreateForm" class="task-form-overlay">
+      <div class="task-form">
+        <h3>{{ selectedTask ? 'Edit Task' : 'Create New Task' }}</h3>
+        <form [formGroup]="taskForm" (ngSubmit)="submitTask()">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input id="title" type="text" formControlName="title">
+          </div>
+  
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" formControlName="description"></textarea>
+          </div>
+  
+          <div class="form-group">
+            <label for="dueDate">Due Date</label>
+            <input id="dueDate" type="date" formControlName="dueDate">
+          </div>
+  
+          <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" formControlName="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="assignedTo">Assign To</label>
+            <select id="assignedTo" formControlName="assignedTo">
+              <option value="">Select User</option>
+              <option *ngFor="let user of users" [value]="user.id">
+                {{ user.name }}
+              </option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" formControlName="status">
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+  
+          <div class="form-actions">
+            <button type="submit" [disabled]="!taskForm.valid">
+              {{ selectedTask ? 'Update' : 'Create' }} Task
+            </button>
+            <button type="button" (click)="closeForm()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+    <!-- Task Lists -->
+    <div class="task-sections">
+      <!-- Created Tasks -->
+      <div class="task-section">
+        <h3>Tasks Created by Me</h3>
+        <div class="task-grid">
+          <div *ngFor="let task of createdTasks" class="task-card">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="priority-badge {{ task.priority }}">
+                {{ task.priority }}
+              </span>
+            </div>
+            <p class="task-description">{{ task.description }}</p>
+            <div class="task-meta">
+              <span>Due: {{ task.dueDate | date }}</span>
+              <span class="status-badge {{ task.status }}">
+                {{ task.status }}
+              </span>
+            </div>
+            <div class="task-actions">
+              <button (click)="openEditForm(task)">Edit</button>
+              <button (click)="deleteTask(task.id)">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Assigned Tasks -->
+      <div class="task-section">
+        <h3>Tasks Assigned to Me</h3>
+        <div class="task-grid">
+          <div *ngFor="let task of assignedTasks" class="task-card">
+            <div class="task-header">
+              <h4>{{ task.title }}</h4>
+              <span class="priority-badge {{ task.priority }}">
+                {{ task.priority }}
+              </span>
+            </div>
+            <p class="task-description">{{ task.description }}</p>
+            <div class="task-meta">
+              <span>Due: {{ task.dueDate | date }}</span>
+              <span class="status-badge {{ task.status }}">
+                {{ task.status }}
+              </span>
+            </div>
+            <div class="task-actions">
+              <button (click)="openEditForm(task)">Edit</button>
+              <button (click)="deleteTask(task.id)">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
