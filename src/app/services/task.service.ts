@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from } from 'rxjs';
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { Task } from '../models/user.model';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -39,7 +39,7 @@ export class TaskService {
     this.tasks.push(newTask);
     this.saveTasksToLocalStorage();
     this.tasksSubject.next(this.tasks);
-    return from(Promise.resolve(newTask));
+    return of(newTask);
   }
 
   updateTask(id: string, task: Partial<Task>): Observable<Task> {

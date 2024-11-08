@@ -1,4 +1,3 @@
-// task-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TaskService } from '../../services/task.service';
@@ -7,7 +6,6 @@ import { NotificationService } from '../../services/notification.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-list',
@@ -17,7 +15,6 @@ import { map } from 'rxjs/operators';
 export class TaskListComponent implements OnInit {
   tasks: Task[] = [];
   users: User[] = [];
-  statusFilter = 'all';
   currentUserId: string | null = null;
   showCreateForm = false;
   taskForm: FormGroup;
@@ -53,13 +50,24 @@ export class TaskListComponent implements OnInit {
     });
   }
 
-
   get createdTasks(): Task[] {
     return this.tasks.filter(task => task.createdBy === this.currentUserId);
   }
 
   get assignedTasks(): Task[] {
     return this.tasks.filter(task => task.assignedTo === this.currentUserId);
+  }
+
+  isCreatingTask(): boolean {
+    return !this.selectedTask;
+  }
+
+  isAssignedUser(): boolean {
+    return !!this.selectedTask && this.selectedTask.assignedTo === this.currentUserId;
+  }
+
+  canEditOtherFields(): boolean {
+    return !!this.selectedTask && this.selectedTask.createdBy === this.currentUserId;
   }
 
   openCreateForm(): void {
@@ -90,9 +98,8 @@ export class TaskListComponent implements OnInit {
         ...this.taskForm.value,
         createdBy: this.currentUserId
       };
-
+      this.taskForm.disable();
       if (this.selectedTask) {
-        // Update existing task
         this.taskService.updateTask(this.selectedTask.id, taskData).subscribe({
           next: (updatedTask) => {
             const index = this.tasks.findIndex(t => t.id === updatedTask.id);
@@ -101,40 +108,40 @@ export class TaskListComponent implements OnInit {
             }
             this.closeForm();
           },
-          error: (error) => console.error('Error updating task:', error)
+          error: (error) => {
+            console.error('Error updating task:', error);
+            this.taskForm.enable();
+          },
+          complete: () => {
+            this.taskForm.enable();
+          }
         });
       } else {
-        // Create new task
         this.taskService.createTask(taskData).subscribe({
           next: (newTask) => {
-            this.tasks.push(newTask);
-            this.notificationService.createNotification({
-              message: `New task "${newTask.title}" assigned to you.`,
-              type: 'task-assigned',
-              taskId: newTask.id
-            }).subscribe();
+            // this.tasks.push(newTask);
             this.closeForm();
           },
-          error: (error) => console.error('Error creating task:', error)
+          error: (error) => {
+            console.error('Error creating task:', error);
+            this.taskForm.enable();
+          },
+          complete: () => {
+            this.taskForm.enable();
+          }
         });
       }
     }
   }
-
   closeForm(): void {
     this.showCreateForm = false;
     this.selectedTask = null;
     this.taskForm.reset();
   }
 
-  deleteTask(id: string): void {
-    if (confirm('Are you sure you want to delete this task?')) {
-      this.taskService.deleteTask(id).subscribe({
-        next: () => {
-          this.tasks = this.tasks.filter(task => task.id !== id);
-        },
-        error: (error) => console.error('Error deleting task:', error)
-      });
-    }
+  deleteTask(taskId: string): void {
+    this.taskService.deleteTask(taskId).subscribe(() => {
+      this.tasks = this.tasks.filter(task => task.id !== taskId);
+    });
   }
 }
