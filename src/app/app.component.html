@@ -14,7 +14,7 @@
         <a routerLink="/login">Login</a>
       </li>
       <li *ngIf="currentUser">
-        <span>Welcome, {{ currentUser.name }}</span>
+        <span>Welcome, {{ currentUser.username }}</span>
         <button (click)="logout()">Logout</button>
       </li>
     </ul>

@@ -100,6 +100,7 @@ export class TaskListComponent implements OnInit {
       };
       this.taskForm.disable();
       if (this.selectedTask) {
+        taskData.createdBy = this.selectedTask.createdBy;
         this.taskService.updateTask(this.selectedTask.id, taskData).subscribe({
           next: (updatedTask) => {
             const index = this.tasks.findIndex(t => t.id === updatedTask.id);

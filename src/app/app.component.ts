@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  currentUser$: Observable<User | null>; // Observable for the current user
+  currentUser$: Observable<User | null>;
   unreadNotificationCount: number = 0;
   currentUser: User;
 
@@ -18,24 +18,21 @@ export class AppComponent implements OnInit {
     private authService: AuthService,
     private router: Router
   ) {
-    // Initialize the currentUser$ observable
     this.currentUser$ = this.authService.currentUser$;
   }
 
   ngOnInit(): void {
-    // You can also set up a subscription if needed
     this.currentUser$.subscribe((user) => {
       if (user) {
         this.currentUser = user;
       }
     });
-
-    // Mock notification count or replace it with actual notification service logic
-    this.unreadNotificationCount = 3; // Example: 3 unread notifications
+    this.unreadNotificationCount = 3;
   }
 
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+    this.currentUser = null
   }
 }
