@@ -1,10 +1,34 @@
 <div class="notifications">
-    <h2>Notifications</h2>
-    <div class="notification-list">
-      <div *ngFor="let notification of notifications" class="notification-card" [class.read]="notification.read">
-        <h3>{{ notification.message }}</h3>
-        <p>{{ notification.createdAt | date }}</p>
-        <button (click)="markAsRead(notification.id)">Mark as Read</button>
-      </div>
+  <h2>Notifications</h2>
+  <p *ngIf="unreadCount > 0" class="unread-count">
+    Unread Notifications: {{ unreadCount }}
+  </p>
+
+  <div *ngIf="notifications.length > 0; else noNotifications" class="notification-list">
+    <div
+      *ngFor="let notification of notifications"
+      class="notification-card"
+      [ngClass]="{
+        'task-assigned': notification.type === 'task-assigned',
+        'task-updated': notification.type === 'task-updated',
+        'task-completed': notification.type === 'task-completed',
+        'info': notification.type === 'info',
+        'read': notification.read
+      }"
+    >
+      <span class="icon" *ngIf="notification.type === 'task-assigned'">✔️</span>
+      <span class="icon" *ngIf="notification.type === 'task-updated'">🔄</span>
+      <span class="icon" *ngIf="notification.type === 'task-completed'">✅</span>
+      <span class="icon" *ngIf="notification.type === 'info'">ℹ️</span>
+
+      <h3>{{ notification.message }}</h3>
+      <p>{{ notification.createdAt | date: 'medium' }}</p>
+
+      <button *ngIf="!notification.read" (click)="markAsRead(notification.id)">Mark as Read</button>
     </div>
   </div>
+
+  <ng-template #noNotifications>
+    <p>No notifications available.</p>
+  </ng-template>
+</div>

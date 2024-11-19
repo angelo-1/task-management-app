@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { Task } from '../models/user.model';
 import { v4 as uuidv4 } from 'uuid';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ export class TaskService {
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   public tasks$ = this.tasksSubject.asObservable();
 
-  constructor() {
+  constructor(private notificationService: NotificationService) {
     this.loadTasksFromLocalStorage();
   }
 
@@ -39,6 +40,13 @@ export class TaskService {
     this.tasks.push(newTask);
     this.saveTasksToLocalStorage();
     this.tasksSubject.next(this.tasks);
+    this.notificationService.createNotification({
+      id: uuidv4(),
+      message: `New task "${newTask.title}" assigned to you.`,
+      type: 'task-assigned',
+      taskId: newTask.id,
+      userId: newTask.assignedTo,
+    });
     return of(newTask);
   }
 
@@ -51,6 +59,12 @@ export class TaskService {
       };
       this.saveTasksToLocalStorage();
       this.tasksSubject.next(this.tasks);
+      this.notificationService.createNotification({
+        message: `Task "${this.tasks[index].title}" has been updated.`,
+        type: 'task-updated',
+        taskId: this.tasks[index].id,
+        userId: this.tasks[index].createdBy,
+      });
       return from(Promise.resolve(this.tasks[index]));
     }
     return from(Promise.reject(new Error(`Task with ID ${id} not found.`)));

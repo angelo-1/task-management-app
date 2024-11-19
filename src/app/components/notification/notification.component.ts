@@ -1,29 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { Notification } from '../../models/user.model';
 import { NotificationService } from '../../services/notification.service';
-import { AuthService } from '../../services/auth.service';
-
 
 @Component({
   selector: 'app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css']
 })
-
 export class NotificationComponent implements OnInit {
   notifications: Notification[] = [];
+  unreadCount: number = 0;
 
-  constructor(
-    private notificationService: NotificationService,
-    private authService: AuthService
-  ) {}
+  constructor(private notificationService: NotificationService) {}
 
   ngOnInit(): void {
     this.loadNotifications();
+    this.getUnreadCount();
   }
 
+  // Load notifications dynamically
   loadNotifications(): void {
-    this.notificationService.getNotifications().subscribe({
+    this.notificationService.notifications$.subscribe({
       next: (notifications) => {
         this.notifications = notifications;
       },
@@ -33,14 +30,29 @@ export class NotificationComponent implements OnInit {
     });
   }
 
-
+  // Mark a notification as read
   markAsRead(id: string): void {
     this.notificationService.markAsRead(id).subscribe({
       next: () => {
-        this.notifications.find(n => n.id === id)!.read = true;
+        // Update UI immediately without reloading
+        const notification = this.notifications.find(n => n.id === id);
+        if (notification) notification.read = true;
+        this.getUnreadCount();
       },
       error: (error) => {
         console.error('Error marking notification as read:', error);
+      }
+    });
+  }
+
+  // Get the count of unread notifications
+  getUnreadCount(): void {
+    this.notificationService.getUnreadNotificationCount().subscribe({
+      next: (count) => {
+        this.unreadCount = count;
+      },
+      error: (error) => {
+        console.error('Error fetching unread count:', error);
       }
     });
   }

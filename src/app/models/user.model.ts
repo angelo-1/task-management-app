@@ -20,9 +20,10 @@ export interface User {
   export interface Notification {
     id: string;
     message: string;
-    type: 'task-assigned' | 'task-updated' | 'task-completed';
+    type: "task-assigned" | "task-updated" | "task-completed" | "info";
     taskId: string;
     userId: string;
     read: boolean;
     createdAt: Date;
+    expiryDate?: Date | null;
   }
